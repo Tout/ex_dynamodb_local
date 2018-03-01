@@ -12,8 +12,8 @@ defmodule ExDynamodbLocal.Server do
   Starts the server.
   """
   def start_link(_opts) do
-    # {:ok, pid} = GenServer.start_link(__MODULE__, :ok, opts)
     {:ok, pid} = GenServer.start_link(__MODULE__, :ok, [name: __MODULE__])
+    # For debugging purposes:
     # :sys.statistics(pid, true)
     # :sys.trace(pid, true)
     {:ok, pid}
@@ -46,8 +46,7 @@ defmodule ExDynamodbLocal.Server do
     Calls start to spawn dynamodb_local process when the Worker is initialized.
   """
   def init(:ok) do
-    # start()
-    os_pid = read_pid()
+    os_pid = start_dynamodb_local()
     {:ok, os_pid}
   end
 
@@ -56,9 +55,7 @@ defmodule ExDynamodbLocal.Server do
     If the executable is not found, is downloaded and extracted.
   """
   def handle_call(:start_dynamodb_local, _from, _state) do
-    Logger.info "Initializing dynamodb_local"
-    Installer.setup_dynamodb_local()
-    os_pid = Worker.start_if_not_running()
+    os_pid = start_dynamodb_local()
     {:reply, os_pid, os_pid}
   end
 
@@ -89,9 +86,15 @@ defmodule ExDynamodbLocal.Server do
     {:noreply, state}
   end
 
-  def handle_info(msg, state) do
-    IO.inspect msg
+  def handle_info(_msg, state) do
+    # IO.inspect msg
     {:noreply, state}
+  end
+
+  defp start_dynamodb_local do
+    Logger.info "Initializing dynamodb_local"
+    Installer.setup_dynamodb_local()
+    Worker.start_if_not_running()
   end
 
 end

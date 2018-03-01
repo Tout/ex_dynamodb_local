@@ -10,7 +10,7 @@ defmodule ExDynamodbLocal.Application do
     children = [
       # Starts a worker by calling: ExDynamodbLocal.Worker.start_link(arg)
       # ExDynamodbLocal.Worker.start_link([])
-      {ExDynamodbLocal.Server, []},
+      ExDynamodbLocal.Server,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
